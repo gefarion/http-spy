@@ -1,0 +1,56 @@
+\subsection*{Objetivo}
+
+El objetivo inicial era implementar una herramienta que capture mediante sniffing de la red pedidos HTTP/S que son dirigidos a un Proxy, y almacenarlos en una base de datos SQL. Se debe almacenar ip origen, fecha y hora, método http, URL. De ser posible, almacenar los Headers de la respuesta, incluyendo código de respuesta, tamaño de la misma y Content-Type. La herramienta deberá permitir realizar diferentes informes sobre los datos almacenados.
+
+Basándonos en el objetivo inicial, decidimos implementar una herramienta más flexible y completa. Algunas de las características deseables de esta nueva implementación son las siguientes:
+
+\begin{itemize}
+\item Se deberá poder filtrar el tráfico a almacenar según reglas ingresadas por el usuario (hosts, puertos, etc.).
+\item El usuario deberá poder seleccionar que parte de la conversación HTTP desea almacenar (hosts, puertos, método, headers, etc.).
+\item Podrán utilizarse diferentes formas de almacenar el tráfico sniffeado (SQL, texto plano, XML, YAML, etc.).
+\item La herramienta deberá ser robusta y no romperse por anomalías en el tráfico.
+\item Es deseable que se trate de utilizar sólo herramientas/módulos estándares del lenguaje seleccionado para su implementación.
+\item Debe ser un sistema muy simple y poco acoplado, de forma de permitir que se utilice para implementar sistemas más complejos.
+\item La implementación debe ser compacta y portable.
+\end{itemize}
+
+\subsection*{Herramientas}
+
+Para la implementación del sistema se decidió utilizar Python, dado que es un lenguaje muy maduro y robusto, con lo cual disponemos muchas librerías y módulos que podemos utilizar para nuestro trabajo.
+
+A continuación enumeraremos las librerías de python relacionadas a la captura de tráfico que consideramos para realizar la implementación:
+
+\begin{itemize}
+\item PYCAP: es un módulo de bajo nivel que permite capturar e inyectar paquetes en cualquier interfaz de red, esta basada en libpcap y libnet. El principal problema que presenta es que solamente implementa hasta la capa TCP y no permite rearmar el flujo de la conversación TCP entre los hosts.
+\item SCAPY: basada en PYCAP, es una implementación más modular que la anterior que permite definir de forma muy fácil nuevas capas. Si bien pudimos definir una capa para el tráfico HTTP, al igual que PYCAP, no permite de forma nativa rearmar los streams TCP.
+\item PYNIDS: es una librería en python basada en libnids. A diferencia de las anteriores, PYNIDS emula el stack IP del kernel de Linux, ofrece defragmentación IP, ensamblado del stream TCP y detección de scaneo de puertos. 
+\end{itemize}
+
+Las 3 herramientas poseen la posibilidad de sniffear múltiples interfaces utilizando diferentes filtros para el tráfico. 
+
+Se implementó un pequeño sniffer http con las 3 herramientas mencionadas. Si bien con todas ellas es bastante simple capturar tráfico, la mayor dificultad la encontramos al intentar rearmar el stream TCP, la única que puede realizar esto de forma nativa es PYNIDS. Por lo tanto en caso de querer utilizar PYCAP o SCAPY para nuestra implementación, deberíamos desarrollar por nuestra cuenta todo el ensamble y las conversaciones TCP entre los hosts. 
+
+Para interpretar y parsear la conversación HTTP se va a utilizar la librería http-parser, la cual soporta de forma completa la especificación de dicho protocolo.
+
+Finalmente para almacenar el tráfico capturado vamos a utilizar SQLite, dado que esto nos permite alcanzar el objetivo de portabilidad que anteriormente mencionamos. Decidimos que no valía la pena utilizar un motor de base de datos más complejo como primer implementación, pero si tiene que estar la posibilidad de utilizar uno en un futuro.
+
+\subsection*{Diseño preliminar}
+
+Buscando alcanzar las características deseadas mencionadas anteriormente, decidimos dividir el sistema en tres grandes partes:
+
+\begin{itemize}
+\item Sistema de captura: es el encargado de capturar y extraer de las conversaciones HTTP/S la información relevante establecida por el usuario. Este módulo no tiene la responsabilidad de almacenar nada, simplemente debe pasar dicha información a otro módulo para este que encargue de esta tarea. Para su implementación utilizaremos las librerías PYNIDS y http-parser, así como algunas otras librerías estándares de python. 
+\item Sistema de almacenamiento: este módulo es el encargado de tomar los datos extraídos por el sistema de captura y almacenarlos en algún medio para que puedan ser consultados posteriormente. A diferencia del Sistema de captura, se implementarán diferentes Sistemas de almacenamiento: SQLite, XML, YAML, etc.
+\item Sistema de consulta: este sistema permitirá realizar consultas y extraer información de los datos almacenados anteriormente. Inicialmente se implementará una pequeña interfaz en consola para que el usuario pueda consultar de forma sencilla los datos, posteriormente implementaremos una interfaz más completa (posiblemente utilizando algún microframework web).
+\end{itemize}
+
+Para comunicar el Sistema de captura con el Sistema de almacenamiento utilizaremos pipes. De esta forma logramos que los 3 sistemas estén completamente desacoplados, logrando que la herramienta sea fácilmente escalable.
+
+\subsection*{Fuentes}
+
+\begin{itemize}
+\item http://pycap.sourceforge.net/
+\item http://www.secdev.org/projects/scapy/
+\item http://jon.oberheide.org/pynids/
+\item http://www.freesoft.org/CIE/RFC/1945/index.htm
+\end{itemize}
