@@ -1,0 +1,42 @@
+Estructura:
+
+- Caratula
+
+- Objetivo solicitados: contar en que consistia el enunciado, contexto de
+  ejecucion.
+
+- Objetivos adicionalies: que cosas decidimos agregar con respecto al
+  enunciado orinal
+
+- Herramientas / libs analizadas.
+
+- Decisiones finales (sobre las herramientas).
+
+- Diseño del sniffer.
+
+- Requerimientos + instalacion.
+ 
+- HTTPSniffer.
+
+- HTTPStream.
+
+- PluginManager.
+
+- Plugins implementados.
+
+- SimplePrinter (con demo)
+
+- sqlite_static (con demo)
+
+- sqlite_full (con demo)
+
+- web_app (diseño + demo)
+
+- problemas
+
+- mejoras a futuro
+
+- preguntas 
+
+
+
