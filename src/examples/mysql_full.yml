@@ -1,0 +1,3 @@
+# Configuracion example for HTTPSpy using MySQLFull
+- name : MySQLFull
+  host : seginfo

@@ -1,0 +1,362 @@
+#!/usr/bin/env perl
+use Mojolicious::Lite;
+use DBI;
+use YAML::Tiny;
+
+my $db_file = $ENV{INFORMES_DB} || 'log.db';
+my $DB = DBI->connect("dbi:SQLite:$db_file", "", "", {});
+my $INFORMES = YAML::Tiny::LoadFile($ENV{'INFORMES_YML'} || 'informes.yml');
+
+helper db => sub {
+	return $DB;
+};
+
+helper informes => sub {
+	return $INFORMES;
+};
+
+get '/correr_query' => sub {
+	my $self = shift;
+  	my $resultado = $self->db->selectall_arrayref($self->param('query')); 
+	if ($self->db->err) {
+		$self->render_text($self->db->errstr);
+	} 
+	else {
+		$self->render('custom_query_resultado', resultado => $resultado);
+	}
+};
+
+get '/correr_insert' => sub {
+	my $self = shift;
+  	my $resultado = $self->db->selectall_arrayref("insert into black_list values ('".$self->param('item')."');"); 
+	if ($self->db->err) {
+		$self->render_text($self->db->errstr);
+	} 
+	else {
+		$self->render('custom_query_resultado', resultado => $resultado);
+	}
+};
+
+
+
+get '/query' => sub {
+	my $self = shift;
+	$self->render('custom_query');
+};
+
+get '/lista_negra' => sub {
+	my $self = shift;
+	$self->render('lista_negra');
+};
+
+get '/' => sub {
+	my $self = shift;
+	$self->render('index', informes => $self->informes);
+};
+
+get '/campos/:id' => sub {
+	my $self = shift;
+	my $id = $self->param('id');
+	$self->render('campos', informe => $self->informes->[$id]);
+};
+
+get '/correr/:id' => sub {
+	my $self = shift;
+	my $id = $self->param('id');
+	my $informe = $self->informes->[$id];
+
+	my @campos = ();
+	for (my $i = 0; $i < @{ $informe->{campos} }; $i++) {
+		push @campos, $self->param("campo_$i");
+	}
+
+  	my $resultado = $self->db->selectall_arrayref($informe->{query}, {}, @campos);
+	if ($self->db->err) {
+		$self->render_text($self->db->errstr);
+	}
+	else {
+		$self->render('resultado', informe => $informe, resultado => $resultado);
+	}
+};
+
+app->start;
+
+__DATA__
+
+@@ layouts/default.html.ep
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="estilos.css" />
+		<title>
+			<%= title %>
+		</title>
+	</head>
+	<body>
+		<div class="header">
+			<div class="title">
+				<h1><%= title %></h1>
+			</div>
+		</div>
+		<div class="content">
+			<%= content %>
+		</div>
+	</body>
+</html>
+
+
+
+@@ index.html.ep
+% layout 'default';
+% title 'HTTPSpy'; 
+<script type="text/javascript" src='informes.js'></script>
+<div class="inputs">
+	<div>
+		<select id="informe_id" name="informe_id" onchange=recargarCampos()>
+			% my $id = 0;
+			% foreach my $informe (@$informes) {
+				<option size=3 value="<%= $id %>">
+					<%= $informe->{nombre} %>	
+				</option>		
+			% 	my $id++;
+			% }
+		</select>
+
+	</div>
+	<div id='informe_campos'>
+	</div>
+	<button type="button" onclick="correrInforme()" />Correr Informe</button>
+</div>
+<div id='informe_resultado'>
+</div>
+
+<script type="text/javascript"> 
+recargarCampos()
+</script>
+
+
+
+@@ campos.html.ep
+<form id='form_campos'>
+<ul>
+	% if (@{ $informe->{campos} }) {
+	<fieldset><legend><b>Parametros</b></legend>
+	% }	 
+	% my $campo_id = 0;
+	% foreach my $campo (@{ $informe->{campos} }) {
+		<li>
+			<label><%= $campo %></label>
+			<input name="campo_<%= $campo_id %>" type="text" />
+		</li>
+	% 	$campo_id++;
+	% }
+	% if (@{ $informe->{campos} }) {
+	</fieldset>
+	% }	 
+</form>
+</ul>
+
+
+
+@@ resultado.html.ep
+<div class="output">
+	<table class="resultado">
+		<tr>
+			% foreach my $columna (@{ $informe->{columnas} }) { 
+				<th><%= $columna %></th>
+			% }
+		</tr>
+		% foreach my $row (@$resultado) {
+			% my $odd = 1;
+			<tr>
+				% foreach my $col (@$row) {
+					<td class="<%= ($odd ? 'odd' : '') %>" ><%= $col %></td> 
+					% $odd = !$odd
+				% }
+			</tr>
+
+		% }
+	</table>
+</div>
+
+
+
+@@ custom_query.html.ep
+% layout 'default';
+% title 'Custom Query'; 
+<script type="text/javascript" src='custom_query.js'></script>
+<div class="inputs" id="query_entrada">
+	<textarea id="query_text" cols=70 rows=10></textarea>
+	<br />
+	<input value="Correr query" type="button" onclick="correrQuery()" />
+</div>
+<div id="query_resultado">
+</div>
+
+@@ lista_negra.html.ep
+% layout 'default';
+% title 'Lista Negra'; 
+<script type="text/javascript" src='lista_negra.js'></script>
+<div class="inputs" id="item_entrada">
+	<textarea id="item_text" cols=70 rows=10></textarea>
+	<br />
+	<input value="Agregar a lista negra" type="button" onclick="agregarItem()" />
+</div>
+<div id="query_resultado">
+</div>
+
+@@ custom_query_resultado.html.ep
+<div class="output">
+	<table class="resultado">
+		% foreach my $row (@$resultado) {
+			<tr>
+				% foreach my $col (@$row) {
+					<td><%= $col %></td>
+				% }
+			</tr>
+		% }
+	</table>
+</div>
+
+
+
+@@ informes.js
+function recargarCampos() {
+	var informe_id = document.getElementById('informe_id').selectedIndex,
+		campos_container = document.getElementById('informe_campos');
+
+	request = new XMLHttpRequest()
+	request.open('GET', '/campos/' + informe_id, false);
+	request.send();
+
+	campos_container.innerHTML = request.responseText;
+}
+
+function correrInforme() {
+	var informe_id = document.getElementById('informe_id').selectedIndex,
+		campos = document.getElementById('form_campos').elements,
+		div_resultado = document.getElementById('informe_resultado'),
+		i;
+
+	url = '/correr/' + informe_id + '?';
+	for (i = 0; i < campos.length; i++) {
+		url += campos[i].name + '=' + campos[i].value + '&';
+	}
+	url = encodeURI(url);
+
+	request = new XMLHttpRequest()
+	request.open('GET', url, false);
+	request.send();
+
+	div_resultado.innerHTML = request.responseText;
+}
+
+
+
+@@ custom_query.js
+function correrQuery() {
+	var div_resultado = document.getElementById('query_resultado'),
+		query = document.getElementById('query_text').value;
+
+	url = '/correr_query?query=' + query;
+	url = encodeURI(url);
+
+	request = new XMLHttpRequest()
+	request.open('GET', url, false);
+	request.send();
+	div_resultado.innerHTML = request.responseText;
+}
+
+@@ lista_negra.js
+function agregarItem() {	
+	var	item = document.getElementById('item_text').value;
+	var query = 'insert into black_list values (' + item + ')';
+	
+	url = '/correr_insert?item=' + item;
+	url = encodeURI(url);
+
+	request = new XMLHttpRequest()
+	request.open('GET', url, false);
+	request.send();	
+}
+
+
+@@ estilos.css
+
+body {
+	color: #CECECE;
+	background: #1C1C1C;
+	font-family: Monospace;
+	font-size:12pt; 
+}
+
+div.header {
+}
+
+div.content {
+	margin-top: 15px;
+}
+
+div.title {
+	text-align: center;
+	width: 900px; 
+	margin: 0px auto 0px auto;
+	border: 1px dashed #CECECE;
+	text-align: center;
+}
+
+div.inputs {
+	padding: 10px;
+	width: 880px; 
+	margin-left: auto;
+	margin-right: auto;
+	border: 1px dashed #CECECE;
+}
+
+div.inputs ul {
+	border:0; 
+	padding:0; 
+	list-style:none;
+}
+
+div.inputs li {
+	clear:both;
+	list-style:none;
+	padding-bottom: 5px;
+}
+
+div.inputs label {
+	width:160px;
+	float:left;
+	font-weight: bold;
+}
+
+div#informe_campos fieldset {
+	border: 1px dashed #CECECE;
+}
+
+div.output {
+	padding: 10px;
+	margin-top: 15px;
+	width: 880px; 
+	margin-left: auto;
+	margin-right: auto;
+	border: 1px dashed #CECECE;
+	overflow:auto;
+}
+
+table.resultado {
+	margin: 0px auto 0px auto;
+
+}
+
+table.resultado td { 
+	padding: 3px;
+	font-size: 0.9em;
+}
+
+table.resultado td.odd { 
+	background-color: #333333;
+}
+
+

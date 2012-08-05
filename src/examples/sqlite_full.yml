@@ -1,0 +1,3 @@
+# Configuracion example for HTTPSpy using SQLiteFull
+- name   : SQLiteFull
+  dbfile : 'db/full_http_log.db'

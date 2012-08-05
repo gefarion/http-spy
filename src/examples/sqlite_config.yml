@@ -1,0 +1,4 @@
+# Configuracion example for HTTPSpy
+- name   : SQLiteStatic
+  dbfile : sqlite_http_logs.db
+  table  : http_logs
