@@ -1,0 +1,112 @@
+\section{Utilizando HTTPSpy}
+
+\subsection{Instalación Debian likes}
+
+\textbf{Repositorio actual:} \url{https://github.com/cdipietro/2012\_1c\_seginfo}	
+\\
+\\\indent Instalación paso a paso:
+\begin{enumerate}
+	\item apt-get install python python-pip python-dev python-nids
+	\item pip install http\_parser
+	\item cpan App::cpanminus
+	\item cpanm DBI DBD::SQLite Mojolicious
+	\item Enjoy!
+\end{enumerate}
+
+\subsection{Modo de Uso}
+
+HttpSpy viene con una opción de help que indica como usar el mismo. Ingresando "python main.py -h" se obtienen las siguientes intrucciones de uso:
+\\\\
+	{\small
+	\begin{boxedverbatim}
+	usage: main.py [-h] [--pcapfile PCAPFILE | --device DEVICE] 
+	[--filter FILTER]
+	[--list-plugins | --help-plugin HELP_PLUGIN | --plugins PLUGINS]
+
+A very basic http sniffer
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --pcapfile PCAPFILE   read a tcp stream from a file
+  --device DEVICE       set the device to sniff
+  --filter FILTER       set the filter (see man tcpdump)
+  --list-plugins        List availables plugins
+  --help-plugin HELP_PLUGIN
+                        Show help for a plugin
+  --plugins PLUGINS     File with configured plugins
+	\end{boxedverbatim}
+	}
+\\\\
+\textbf{Ejemplo de uso:}
+\\\\
+{\small
+\begin{boxedverbatim}
+Archivo de ejemplo de configuración de un módulo, printer.yml:
+	- name      : SimplePrinter
+	  delimiter : "\t"
+	  format    : "shost method >Host path status_code <Content-Type"
+
+Comando para capturar de un dispositivo:
+	$python main.py --device eth0 --plugins printer.yml
+
+Comando para procesar un pcapfile:
+	$python main.py --pcapfile trafico.pcap --plugins printer.yml
+
+Ejemplo de salida:
+	192.168.0.12	GET	www.gnu.org	/	200	text/html
+\end{boxedverbatim}
+}
+
+\subsection{Interfaz Web}
+
+\subsubsection{Instalando la Aplicación Web}
+
+Pasos de la instalación:
+\\\\
+{\small
+\begin{boxedverbatim}
+	> sudo cpan cpan App::cpanminus
+	> sudo cpanm DBI
+	> sudo cpanm DBD::SQLite
+	> sudo cpanm YAML::Tiny
+	> sudo cpanm Mojolicious
+\end{boxedverbatim}
+}
+
+\subsubsection{Utilizando la Aplicación Web}
+
+Es una pequeña aplicación web que permite realizar consultas predefinidas sobre la base de datos generada por el sniffer. 
+\begin{itemize}
+	\item Los informes preconfigurados se definen mediante un archivo de configuración con formato yaml.
+	\item Se pueden definir informes parametrizados.
+\end{itemize}
+
+Para ponerla en ejecución hay que ejecutar la siguient sentencia desde el directorio de la web app.
+\\\\
+{\small
+\begin{boxedverbatim}
+	> morbo informes
+	[Sat Aug  4 23:43:38 2012] [info] Listening at "http://*:3000".
+	Server available at http://127.0.0.1:3000.
+	> _
+\end{boxedverbatim}
+}
+\\\\
+Una vez puesta en ejecución podremos acceder a la misma desde la url informada 
+en el resultado del comando y realizar desde ella consultas sobre los datos 
+almacenados de los accesos http/https.
+\\
+\\Por ejemplo una de las consultas definidas es la siguiente: 
+\\\\
+	{\small
+	\begin{boxedverbatim}
+	- nombre: Listar fecha, origen, destino (like)
+  query: 'SELECT date, shost, host FROM http_log WHERE host LIKE ?'
+  campos: 
+   - Destino
+  columnas:
+   - Fecha
+   - Origen
+   - Destino
+	\end{boxedverbatim}
+	}
