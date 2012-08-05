@@ -1,0 +1,5 @@
+# Configuracion example for HTTPSpy
+- name      : SyslogPrinter
+  facility  : LOG_SYSLOG
+  priority  : LOG_INFO
+  format    : "shost method >Host path status_code <Content-Type <Content-Length"

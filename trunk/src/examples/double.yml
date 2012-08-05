@@ -1,0 +1,6 @@
+- name      : SimplePrinter
+  delimiter : "\t"
+  format    : "ctime shost method >Host path status_code <Content-Type <Content-Length"
+
+- name   : SQLiteFull
+  dbfile : 'db/full_http_log.db'

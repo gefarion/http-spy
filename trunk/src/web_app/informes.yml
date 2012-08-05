@@ -1,0 +1,53 @@
+# Informes definidos
+- nombre: Listar fecha, origen, destino
+  query: 'SELECT datetime(date), shost, host FROM http_log'
+  campos: []
+  columnas:
+   - Fecha
+   - Origen
+   - Destino
+
+- nombre: Listar fecha, origen, destino (like)
+  query: 'SELECT datetime(date), shost, host FROM http_log WHERE host LIKE ?'
+  campos: 
+   - Destino
+  columnas:
+   - Fecha
+   - Origen
+   - Destino
+
+- nombre: Listar fecha (inicio, fin), origen, destino
+  query: 'SELECT datetime(date), shost, host FROM http_log WHERE date > ? AND date < ?'
+  campos: 
+   - Fecha inicio
+   - Fecha fin
+  columnas:
+   - Fecha
+   - Origen
+   - Destino
+
+- nombre: Listar equipos que establecieron conexion a sitios raros
+  query: 'select shost, host from (select distinct shost, host from http_log) group by host having count(host) <= ?'
+  campos:
+   - Nivel de rareza.
+  columnas:
+   - Origen
+   - Destino
+
+- nombre: Listar conexiones a hosts de la black list.
+  query: 'SELECT datetime(date), shost, host FROM http_log INNER JOIN black_list ON http_log.host=black_list.dhost'
+  campos: []
+  columnas:
+   - Fecha
+   - Origen
+   - Destino
+
+- nombre: Listar fuera de horario (inicio, fin), origen, destino
+  query: 'select datetime(date), shost, host from http_log where time(date) < ? OR time(date) > ? order by datetime(date)'
+  campos:
+   - Hora inicio
+   - Hora fin
+  columnas:
+   - Fecha
+   - Origen
+   - Destino

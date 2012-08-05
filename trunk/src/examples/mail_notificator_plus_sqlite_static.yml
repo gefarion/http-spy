@@ -1,0 +1,17 @@
+# Configuracion example for HTTPSpy using MailNotificator 
+- name           : MailNotificator
+  smtp           : 'smtp.gmail.com'
+  smtp_port      : 587
+  sender         : 'sniffer.httpspy@gmail.com'
+  receiver       : 'sniffer.httpspy@gmail.com'
+  dhost          : ''
+  content_type   : 'jpeg'
+  path           : 'SeaWorld'
+  content_length : 100000
+  #la contraseña que solicitará al ejecutar el sniffer con
+  #el MailNotificator para sniffer.httpspy@gmail.com es: pw5391nF-
+
+# Configuracion example for HTTPSpy using SQLiteStatic
+- name   : SQLiteStatic
+  dbfile : 'db/http_log_plus_mail.db'
+  table  : 'http_log'
