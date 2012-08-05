@@ -1,0 +1,102 @@
+% Configuración del tipo paginas
+\documentclass[12pt, a4paper]{article}
+
+% Configuración de márgenes de las paginas
+	\usepackage[left=3cm,right=3cm,top=2cm, bottom=2cm]{geometry}
+	%~ \usepackage{a4wide}
+    %~ \headheight 14.4521pt
+    %~ \textheight=26cm
+	%~ \textwidth=18cm
+	%~ \topmargin=-3cm
+	%~ \oddsidemargin=-1cm
+    %~ \hoffset=-3.5cm
+    %~ \footskip=1.2cm
+    %~ \parindent= 2 em
+    \parskip=1.5pt  % mas espacio entre lineas
+
+% Paquete de acentos para Linux
+	\usepackage[utf8]{inputenc}
+
+% Paquete de acentos para windows
+%	\usepackage[latin1]{inputenc}
+
+% Paquete para reconocer la separación en sílabas en español
+	\usepackage[spanish]{babel}
+
+% Paquete para incluir hypervinculos
+	\usepackage{color}
+	\usepackage{url}
+	\definecolor{lnk}{rgb}{0,0,0.4}
+	\usepackage[colorlinks=true,linkcolor=lnk,citecolor=blue,urlcolor=blue]{hyperref}
+
+% Paquete para incluir codigo
+    \usepackage{listings}
+
+% Paquetes de simbolos matematicos y entorno float
+	\usepackage{amssymb}
+	\usepackage{amsmath}
+	\usepackage{float}
+    
+% Paquetes de graficos y calculos
+    \usepackage[amsmath]{./styles/maxiplot}
+    \usepackage{graphicx}
+
+% Paquete para armar índices
+	\usepackage{makeidx}
+	\makeindex
+
+% Paquetes adicionales    
+    \usepackage{pdfpages}
+    \usepackage[small, bf, labelformat = empty]{caption}
+    \usepackage{subfig}
+    \usepackage{multicol}    
+    \usepackage{./styles/fancyhdr}
+    \usepackage{lastpage}                               % NO COMPILA al mover el sty en ./styles
+    \usepackage{./styles/caratula}
+    \usepackage[lined, boxruled]{./styles/algorithm2e}	%paquete para algoritmos
+	\usepackage{./styles/endnotes}						%paquete para poner las referencias al final	
+    
+% Comandos personalizados
+	\newcommand{\tab}{\hspace{1em}}
+	\newcommand{\nat}{\ensuremath{\mathbb{N}}}
+	\newcommand{\entero}{\ensuremath{\mathbb{Z}}}
+	\newcommand{\real}{\ensuremath{\mathbb{R}}}
+	\newcommand{\grafo}{\ensuremath{\mathbb{grafo}}}
+	\newcommand{\titade}[1]{\ensuremath{\Theta(#1)}}
+	\newcommand{\omegade}[1]{\ensuremath{\Omega(#1)}}
+    \renewcommand{\familydefault}{\sfdefault}           % para cambiar la letra 
+
+% Configuracion de estilo de las paginas
+    \pagestyle{fancy}
+    %\lhead{APELLIDO DE LOS INTEGRANTES}
+    %\lhead{\nouppercase{\rightmark}}
+    %\rhead{\nouppercase{\leftmark}}
+    \cfoot{\thepage\ de \pageref{LastPage}}
+
+% Paquete para armar verbatim con recuadro
+	\usepackage{moreverb} 
+
+\begin{document}
+	\let\footnote=\endnote
+
+    %Carátula
+    \input {datos_caratula}
+
+    % Índice
+    \small
+    \newpage \printindex
+    \normalsize
+    
+    % Cuerpo del documento
+	\input{cuerpo.tex}
+
+    % Notes. Referencias
+    \newpage	
+    \begingroup
+        \parindent 0pt
+        \parskip 2ex
+        \def\enotesize{\normalsize}
+        %~ DESCOMENTAR UNICAMENTE CUANDO HAYA footenote en el texto
+        % \theendnotes
+    \endgroup
+\end{document}
