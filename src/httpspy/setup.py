@@ -10,8 +10,6 @@ setup(
 	  url='https://github.com/cdipietro/2012_1c_seginfo.git',
 	  license='GPL',
 	  scripts=['httpspy.py'],
-	  packages=['core', 'plugins'],
-	  install_requires=['argparser', 'yaml', 'nids', 'http_parser']
+	  packages=['core', 'plugins']
 	)
-#      ext_modules=["http_parser"])
 
