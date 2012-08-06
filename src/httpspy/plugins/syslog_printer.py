@@ -50,7 +50,7 @@ class SyslogPrinter:
 		self._undef = conf.get('undef', '')
 		self._delimiter = conf.get('delimiter', ',')
 
-		syslog.openlog(facility=self._facility)
+		syslog.openlog('httpspy', 0, self._facility)
 	
 	def _parse_http_stream(self, http_stream):
 		http_data = {}
