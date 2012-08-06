@@ -1,25 +1,31 @@
 \section{Utilizando HTTPSpy}
 
 \subsection{Instalación Debian likes}
-
-\textbf{Repositorio actual:} \url{https://code.google.com/p/http-spy/}	
-\\
-\\\indent Instalación paso a paso:
+Desde una consola con privilegios de administrador, ejetutar los siguientes pasos para instalar las primero las dependencias y luego la aplicación.
+\begin{itemize}
+\item Instalación de dependencias:
 \begin{enumerate}
 	\item apt-get install python python-pip python-dev python-nids
 	\item pip install http\_parser
 	\item cpan App::cpanminus
 	\item cpanm DBI DBD::SQLite Mojolicious
-	\item Enjoy!
 \end{enumerate}
 
+\item Instalación de la aplicación:
+\begin{enumerate}
+	\item wget \url{http://http-spy.googlecode.com/files/HTTPSpy-1.0.tar.gz}
+	\item tar xvzf HTTPSpy-1.0.tar.gz
+	\item cd HTTPSpy-1.0
+	\item python setup.py install
+\end{enumerate}
+\end{itemize}
 \subsection{Modo de Uso}
 
-HttpSpy viene con una opción de help que indica como usar el mismo. Ingresando "python main.py -h" se obtienen las siguientes intrucciones de uso:
+HttpSpy viene con una opción de help que indica como usar el mismo. Ingresando "httspy.py -h" se obtienen las siguientes intrucciones de uso:
 \\\\
 	{\small
 	\begin{boxedverbatim}
-	usage: main.py [-h] [--pcapfile PCAPFILE | --device DEVICE] 
+	usage: httpspy.py [-h] [--pcapfile PCAPFILE | --device DEVICE] 
 	[--filter FILTER]
 	[--list-plugins | --help-plugin HELP_PLUGIN | --plugins PLUGINS]
 
@@ -47,10 +53,10 @@ Archivo de ejemplo de configuración de un módulo, printer.yml:
 	  format    : "shost method >Host path status_code <Content-Type"
 
 Comando para capturar de un dispositivo:
-	$python main.py --device eth0 --plugins printer.yml
+	$httpspy.py --device eth0 --plugins printer.yml
 
 Comando para procesar un pcapfile:
-	$python main.py --pcapfile trafico.pcap --plugins printer.yml
+	$httpspy.py --pcapfile trafico.pcap --plugins printer.yml
 
 Ejemplo de salida:
 	192.168.0.12	GET	www.gnu.org	/	200	text/html
