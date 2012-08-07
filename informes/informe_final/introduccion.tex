@@ -4,9 +4,8 @@
 
 \subsubsection{Objetivos Iniciales}
 
- Se deberá implementar un sniffer http que permita escuchar el tráfico hacia un proxy http, para luego facilitar el análisis del tráfico capturado.
+ Se deberá implementar un sniffer http que permita escuchar el tráfico hacia un proxy http, para luego facilitar el análisis del tráfico capturado. El sistema deberá contar con las siguientes características:
 \\
- Características:
 \begin{itemize}
 	\item El tráfico deberá almacenarse en una base de datos SQL.
 	\item Proveerá una interfaz para realizar consultas sobre la base de datos.
@@ -17,6 +16,7 @@
 \end{itemize}
 
 \subsubsection{Objetivos adicionales}
+Ademas de los requerimientos solicitados por la cátedra, decimos tomarnos la libertad de extender un poco mas el sistema y agregarles algunas funcionalidades extras. Para ellos se decidió que todo el sistema este basado en plugins, los cuales obtienen la información de un modulo especial que se encarga de la captura de tráfico.
 
 Características añadidas:
 \begin{itemize}
@@ -30,6 +30,7 @@ Características añadidas:
 	\item Se podrá notificar al usuario, vía mail, de accesos considerados críticos por el usuario (i.e., acesos que cumplan ciertas condicones informadas por el usuario).
 \end{itemize}
 
+Durante el desarrollo del trabajo se explicará las funcionalidades implementadas y como se conectan con el sistema principal de captura para realizar su tarea.
 
 \subsection{Breve Introducción Teórica}
 
