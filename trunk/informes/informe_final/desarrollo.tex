@@ -2,7 +2,7 @@
 
 \subsection{Herramientas utilizadas}
 
-Para la implementación del sniffer se analizaron las siguientes tecnologias para la implementación del proyecto.
+Para desarrollo del sniffer se analizaron las siguientes tecnologías:
 
 \begin{itemize}
 	\item Lenguajes: Python, C/C++, Java, Perl.
@@ -15,7 +15,7 @@ Para la implementación del sniffer se analizaron las siguientes tecnologias par
 	\item tinyproxy.
 \end{itemize}
 
-De esas herramientas nos decidimos en lenguaje por uno de bajo nivel. Y nos inclinamos por Python debido a que gran parte del grupo quería aprender a programar en dicho lenguaje o mejorar su experiencia de programación en el mismo. Su sintaxis además es simple y clara; dispone de tipado dinámico, de gran cantidad de librerías disponibles y es un lenguaje potente. Finalmente también otra punto a su favor es que es un lenguaje bastante usado en el ámbito del desarrollo ligado a la seguridad.
+De esas herramientas nos decidimos en lenguaje por uno de bajo nivel. Y nos inclinamos por Python debido a que gran parte del grupo quería aprender a programar en dicho lenguaje o mejorar su experiencia de programación en el mismo. Su sintaxis además es simple y clara; dispone de tipado dinámico, de gran cantidad de librerías disponibles y es un lenguaje potente. Finalmente también otra punto a su favor es que es un lenguaje bastante usado en el ámbito del desarrollo ligado a la seguridad, con lo cual disponemos de gran variedad de librerías para utilizar.
 \\
 \\\indent En cuanto a las librerías de python relacionadas a la captura de tráfico que consideramos para realizar la implementación:
 
@@ -27,9 +27,9 @@ De esas herramientas nos decidimos en lenguaje por uno de bajo nivel. Y nos incl
 
 Las 3 herramientas poseen la posibilidad de sniffear múltiples interfaces utilizando diferentes filtros para el tráfico. 
 \\Se implementó un pequeño sniffer http con las 3 herramientas mencionadas. Si bien con todas ellas es bastante simple capturar tráfico, la mayor dificultad la encontramos al intentar rearmar el stream TCP, la única que puede realizar esto de forma nativa es PYNIDS. Por lo tanto en caso de querer utilizar PYCAP o SCAPY para nuestra implementación, deberíamos desarrollar por nuestra cuenta todo el ensamble y las conversaciones TCP entre los hosts. Por este último motivo elegimos PYNIDS.
-\\Para interpretar y parsear la conversación HTTP se utilizarla librería http-parser, la cual soporta de forma completa la especificación de dicho protocolo.
-\\Para almacenar el tráfico capturado utilizamos SQLite, dado que esto nos permite alcanzar el objetivo de portabilidad que anteriormente mencionamos. Decidimos que no valía la pena utilizar un motor de base de datos más complejo como primer implementación, pero si tiene que estar la posibilidad de utilizar uno en un futuro.
-\\Y, finalmente, para implementar la aplicación web, usada para consultar los datos capturados por el sniffer, nos decantamos por el framework web Mojolicious debido a la experiencia con dicha herramienta por parte de uno de los miembros del grupo.
+\\Para interpretar y parsear la conversación HTTP se utilizarla librería http-parser, la cual soporta de forma completa la especificación de dicho protocolo. La misma posee una implementación en C, la cual posee una excelente performance a la hora de realizar su tarea.
+\\Para la implementación de los diferentes plugins se utilizaron las respectivas versiones de las librerías para python (Sqlite, syslog, MySQLdb, etc). Se programaron una gran variedad de plugins, desde almacenamiento en bases de datos hasta notificaciones mediante correos electrónicos.
+\\Y, finalmente, para implementar la aplicación web, usada para consultar los datos capturados por el sniffer, nos decantamos por el framework web Mojolicious debido a la experiencia con dicha herramienta por parte de uno de los miembros del grupo. Dicha aplicación solo trabaja con los datos generados en la base de datos SQLite.
 \\
 \\\indent Finalmente, se aclara que todo el trabajo fue desarrollado sobre Debian Linux.
 
@@ -44,7 +44,7 @@ Buscando alcanzar las características deseadas mencionadas anteriormente, decid
 
 \subsubsection{HTTPSniffer}
 
-Es el sistema de captura, es el encargado de capturar y extraer de las conversaciones HTTP/S la información relevante según las reglas de filtrado definidas. Por cada conversación HTTP genera una instacia de HTTPStream y ejecuta la función de callback pasándolo como parámetro. Es un singleton que encapsula a la librería pynids.
+Es el sistema de captura, es el encargado de capturar y extraer de las conversaciones HTTP/S la información relevante según las reglas de filtrado definidas. Por cada conversación HTTP genera una instacia de HTTPStream y ejecuta una función de callback definida pasándo dicho objeto como parámetro. Desde el punto de vista de diseño, simplemente es un singleton que wrapea la libreria pynids para facilitar levemente la interconexión entre las partes.
 
 \begin{figure}[hbtp]
     \centering
@@ -53,7 +53,7 @@ Es el sistema de captura, es el encargado de capturar y extraer de las conversac
 
 \subsubsection{HTTPStream}
 
-Representa una conversacion HTTP, almacena toda la información interesante sobre la misma. No alacena el payload de la conversación. Utiliza http\_parser.
+Representa una conversación HTTP, almacena toda la información interesante sobre la misma. No alacena el payload de la conversación. Para el parseo del flujo TCP se utiliza la librería http\_parser y luego se almacena la información relevante en colaboradores internos, los cuales pueden ser accedidos mediante una gran variedad de getters.
 
 \begin{figure}[hbtp]
     \centering
@@ -62,7 +62,7 @@ Representa una conversacion HTTP, almacena toda la información interesante sobr
 
 \subsubsection{PluginsManager}
 
-Administra los plugins instalados en la aplicación. Asocia el nombre del plugin con la clase correspondiente.
+Administra los plugins instalados en la aplicación. Asocia el nombre del plugin con la clase correspondiente. Es responsabilidad de cada plugin de registrarse contra el PluginsManager para que forme parte del sistema y esta disponible para el usuario. Dicha registración se realiza por medio del método \textbf{register}.
 
 \begin{figure}[hbtp]
     \centering
@@ -71,7 +71,7 @@ Administra los plugins instalados en la aplicación. Asocia el nombre del plugin
 
 \subsubsection{Plugins}
 
-Son los encargados de procesar los requests capturados por el sniffer. Cada uno debe implementar los métodos log\_stream y help. 
+Son los encargados de procesar los requests capturados por el sniffer. Son objetos muy simples y el único requerimiento es que implementen los métodos \textbf{log\_stream} y \textbf{help}. 
 \\\\
 \textbf{Plugins implementados:}
 \begin{itemize}
