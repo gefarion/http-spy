@@ -5,29 +5,60 @@ except ImportError:
     from http_parser.pyparser import HttpParser
 
 import pdb
+import StringIO
 
 
 class HTTPStream:
     """
     This class represents an HTTP conversation between two hosts.
     """
+    @staticmethod
+    def _parse_multiples_messages(data, is_response=0):
+        parsers = []
+        ss = StringIO.StringIO(data)
+        p = HttpParser()
+        s = ss.readline();
+        while (s != ""):
+            p.execute(s, len(s))
 
-    @static
-    def create_streams(cls, shost, sport, sdata, dhost, dport, ddata):
-        # Parsea los datas y retorna una lista de http_streams
-        # TODO
+            if (p.is_headers_complete()):
+                parsers.append(p)
+                if (is_response):
+                    content_length = p.get_headers().get('Content-Length')
+                    if (content_length): 
+                        ss.seek(int(content_length), 1) 
+                    p = HttpParser() 
+            s = ss.readline();
 
-    def __init__(self, shost, sport, sdata, dhost, dport, ddata):
+        return parsers
+
+    @staticmethod
+    def create_streams(shost, sport, sdata, dhost, dport, ddata):
+
+        dparsers = HTTPStream._parse_multiples_messages(ddata, 0) 
+        sparsers = []
+
+        if (len(dparsers) > 0):
+            sparsers = HTTPStream._parse_multiples_messages(sdata, 1)
+
+        streams = []
+        
+        for i in range(0, len(sparsers)):
+            streams.append(HTTPStream( 
+                shost, sport, sparsers[i], 
+                dhost, dport, dparsers[i]))
+
+        return streams
+
+    def __init__(self, shost, sport, sparser, dhost, dport, dparser):
 
         self._shost = shost
         self._sport = sport
-        self._client_parser = HttpParser()
-        self._client_parser.execute(sdata, len(sdata))
+        self._client_parser = sparser;
 
         self._dhost = dhost
         self._dport = dport
-        self._server_parser = HttpParser()
-        self._server_parser.execute(ddata, len(ddata))
+        self._server_parser = dparser;
 
     def get_request_headers(self):
         return self._server_parser.get_headers()

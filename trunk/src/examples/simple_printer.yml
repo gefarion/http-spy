@@ -1,4 +1,4 @@
 # Configuracion example for HTTPSpy
 - name      : SimplePrinter
   delimiter : "\t"
-  format    : "ctime shost method >Host path status_code <Content-Type <Content-Length"
+  format    : "ctime shost sport method >Host status_code <Content-Type <Content-Length"

@@ -95,7 +95,7 @@ class HTTPSniffer: # Singleton Class
             http_streams = HTTPStream.create_streams(
                 shost, sport, sdata,
                 dhost, dport, ddata)
- 
+            
             for http_stream in http_streams:
                 self._callback(http_stream)
 
