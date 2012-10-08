@@ -74,19 +74,30 @@ class HTTPSniffer: # Singleton Class
     """
 
     def _handle_tcp_stream(self, tcp):
+        ((shost, sport), (dhost, dport)) = tcp.addr
+
         if tcp.nids_state == nids.NIDS_JUST_EST:
-		((src, sport), (dst, dport)) = tcp.addr
-		if dport in (80, 8000, 8080, 443, 8888):
-			tcp.client.collect = 1
-			tcp.server.collect = 1
+            if dport in (80, 8000, 8080, 443, 8888):
+                tcp.client.collect = 1
+                tcp.server.collect = 1
 
         elif tcp.nids_state == nids.NIDS_DATA:
             # keep all of the stream's new data
             tcp.discard(0)
 
         elif tcp.nids_state in _END_STATES:
-            self._callback(HTTPStream(tcp))
 
+            ddata = tcp.server.data[:tcp.server.count]
+            sdata = tcp.client.data[:tcp.client.count]
+            
+            # Parse la data del stream tcp y genero todos los
+            # http_streams que sean necesarios
+            http_streams = HTTPStream.create_streams(
+                shost, sport, sdata,
+                dhost, dport, ddata)
+ 
+            for http_stream in http_streams:
+                self._callback(http_stream)
 
 # Singleton class ofuscated
 HTTPSniffer = HTTPSniffer()
