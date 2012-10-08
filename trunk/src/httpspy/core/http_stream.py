@@ -4,20 +4,30 @@ try:
 except ImportError:
     from http_parser.pyparser import HttpParser
 
+import pdb
+
 
 class HTTPStream:
     """
     This class represents an HTTP conversation between two hosts.
     """
 
-    def __init__(self, tcp):
-        ((self._shost, self._sport), (self._dhost, self._dport)) = tcp.addr
-        server_data = tcp.server.data[:tcp.server.count]
-        client_data = tcp.client.data[:tcp.client.count]
-        self._server_parser = HttpParser()
-        self._server_parser.execute(server_data, len(server_data))
+    @static
+    def create_streams(cls, shost, sport, sdata, dhost, dport, ddata):
+        # Parsea los datas y retorna una lista de http_streams
+        # TODO
+
+    def __init__(self, shost, sport, sdata, dhost, dport, ddata):
+
+        self._shost = shost
+        self._sport = sport
         self._client_parser = HttpParser()
-        self._client_parser.execute(client_data, len(client_data))
+        self._client_parser.execute(sdata, len(sdata))
+
+        self._dhost = dhost
+        self._dport = dport
+        self._server_parser = HttpParser()
+        self._server_parser.execute(ddata, len(ddata))
 
     def get_request_headers(self):
         return self._server_parser.get_headers()
