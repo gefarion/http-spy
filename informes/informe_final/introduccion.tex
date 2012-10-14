@@ -135,4 +135,4 @@ Su función es capturar los paquetes o tramas que circulan en la red para luego 
 \end{figure}
 
 Todo el tráfico que pasa entre la red interna e Internet debe pasar por el Network Tap (en nuestro caso un proxy) y allí es cuando ese tráfico es capturado por el sniffer que implementamos (HTTPSpy). El mismo si detecta paquetes pertenecientes al protocolo HTTP o HTTPS rearma dichos paquetes y los almacena en una base de datos para su posterior análisis. Finalmente, un usuario cliente puede ingresar a la aplicación web y realizar consultas sobre datos a partir de los registros capturados y almacenados en la base de datos por el sniffer.
-Adicionalmente, aunque no está grafico, nuestro sniffer también puede conectarse con un servidor smtp y enviar un mail al cumplirse ciertas condiciones sobre las conexiones.
+Adicionalmente, aunque no está graficado, nuestro sniffer también puede conectarse con un servidor smtp y enviar un mail al cumplirse ciertas condiciones sobre las conexiones.
